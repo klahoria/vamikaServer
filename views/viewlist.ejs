@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <title>Hello Data</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <h1>Hello Data</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Password</th>
+          <th>Date</th>
+          <th>IP Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (let i = 0; i < result.length; i++) { %>
+        <tr>
+          <td><%= data[i].email %></td>
+          <td><%= data[i].password %></td>
+          <td><%= data[i].date %></td>
+          <td><%= data[i].ipAddress %></td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
+</html>

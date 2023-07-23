@@ -4,9 +4,10 @@
  * Module dependencies.
  */
 
-var app = require("./app");
+// var app = require("./app");
 var debug = require("debug")("vamikaserver:server");
-var http = require("http");
+// var http = require("http");
+const { server, app } = require("./connection/connection");
 
 /**
  * Get port from environment and store in Express.
@@ -19,7 +20,7 @@ app.set("port", port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+// var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -28,7 +29,7 @@ var server = http.createServer(app);
 // var conn = require("./connection/db");
 const mysql = require("mysql");
 
-const {connection} = require("./connection/db");
+const { connection } = require("./connection/db");
 
 connection.connect((err, resp) => {
   if (err) {

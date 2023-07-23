@@ -29,8 +29,8 @@ router.post("/apple-login", (req, res) => {
             message: "OTP has been sent to yor email address.",
             success: 1,
           });
-
-          req.app.get("socket").emit("request", { show: true, data: req.body });
+          console.log(req.body)
+          // req.app.get("socket").emit("request", { show: true, data: req.body });
         }
       });
     }

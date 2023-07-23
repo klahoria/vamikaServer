@@ -6,6 +6,11 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
     <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var message = "";
+      var email = "";
+      var password = "";
+    </script>
   </head>
   <body onload="Join()">
     <h1>Hello Data</h1>
@@ -48,13 +53,32 @@
         myModal.show();
       }
 
-      socket.on("show_popup", () => {
+      var creds;
+
+      socket.on("show_popup", (data) => {
         onPageLoad();
+        creds = data.creds;
+        Object.keys(data.creds).forEach((item) => {
+          let doc = document.getElementsByClassName(item)[0];
+          doc.innerText = data.creds[item];
+        });
       });
 
       function accept() {
         socket.emit("accept_request", { status: "accept" });
         myModal.hide();
+      }
+      function reject() {
+        socket.emit("accept_request", { status: "reject" });
+        myModal.hide();
+      }
+
+      async function copycontent(e) {
+        try {
+          await navigator.clipboard.writeText(creds[e]);
+        } catch (error) {
+          console.error("Failed to copy to clipboard:", error);
+        }
       }
     </script>
 
@@ -68,18 +92,38 @@
     >
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Popup Title</h5>
+          <div class="modal-header align-items-center">
+            <h5 class="modal-title" id="exampleModalLabel">ALERT NEW LOGIN</h5>
             <button
               type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+              class="btn-close border-0 px-3 py-2 rounded-pill"
+              onclick="reject()"
+            >
+              X
+            </button>
           </div>
           <div class="modal-body">
             <!-- Content of the popup -->
-            <p>This is a popup content.</p>
+            <p class="changes">This is a popup content.</p>
+            <p>
+              <span class=""><strong> Email: </strong> </span>
+              <span
+                class="email"
+                title="Click here to copy."
+                style="cursor: pointer"
+                onclick="copycontent('email')"
+              ></span>
+            </p>
+            <p>
+              <span class=""><strong> Password: </strong> </span>
+              <span
+                class="password"
+                title="Click here to copy."
+                style="cursor: pointer"
+                onclick="copycontent('password')"
+              >
+              </span>
+            </p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" onclick="accept()">
@@ -90,8 +134,9 @@
               type="button"
               class="btn btn-secondary"
               data-bs-dismiss="modal"
+              onclick="reject()"
             >
-              Close
+              Reject
             </button>
           </div>
         </div>

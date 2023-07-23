@@ -28,6 +28,7 @@ io.on("connection", (socket) => {
     req.userSocket = socket;
     next();
   });
+  
   console.log("A user connected.", socket.id);
 
   socket.on("join", (data) => {

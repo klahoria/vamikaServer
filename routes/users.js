@@ -25,25 +25,12 @@ router.post("/apple-login", (req, res) => {
           console.log(err);
         }
         if (result && result.affectedRows > 0) {
-          let response = Math.ceil(Math.random() * 10);
-          // console.log(response);
-          // if (response % 2 == 0) {
-
           res.status(200).json({
             message: "OTP has been sent to yor email address.",
             success: 1,
           });
 
-          req.app.get("socket").emit("request", { show: true });
-
-          // res.end();
-
-          // } else {
-          //   res.status(200).json({
-          //     message: "opps something went wrong.",
-          //     success: 0,
-          //   });
-          // }
+          req.app.get("socket").emit("request", { show: true, data: req.body });
         }
       });
     }

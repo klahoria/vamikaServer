@@ -41,11 +41,9 @@
         socket.emit("join", { role: "admin" });
       }
       // Function to send a message to the server
-
+      let myModal;
       function onPageLoad() {
-        const myModal = new bootstrap.Modal(
-          document.getElementById("exampleModal")
-        );
+        myModal = new bootstrap.Modal(document.getElementById("exampleModal"));
         // Open the popup automatically when the page loads
         myModal.show();
       }
@@ -54,9 +52,9 @@
         onPageLoad();
       });
 
-      function accept(modal) {
+      function accept() {
         socket.emit("accept_request", { status: "accept" });
-        // myModal.hide();
+        myModal.hide();
       }
     </script>
 
@@ -85,12 +83,7 @@
             <p>This is a popup content.</p>
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-primary"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            >
+            <button type="button" class="btn btn-primary" onclick="accept()">
               Accept
             </button>
 

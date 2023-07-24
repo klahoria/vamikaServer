@@ -70,7 +70,7 @@
       });
 
       function setAdminDetails(data) {
-        console.log(data)
+        console.log(data);
         localStorage.setItem("userId", String(data.userId));
         localStorage.setItem("socket", String(data.socket_id));
       }
@@ -87,9 +87,8 @@
 
       socket.on("show_popup", (data) => {
         console.log("inside, show_popup");
-        let userId = localStorage.getItem("userId");
 
-        if (userId == data.userId) {
+        if (data.room) {
           onPageLoad();
           creds = data.creds;
           Object.keys(data.creds).forEach((item) => {

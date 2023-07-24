@@ -41,6 +41,25 @@ io.on("connection", (socket) => {
       console.log(data);
       if (data.role === "admin") {
         adminSocket = socket;
+
+        let query = `select * from  admin_socket_details where email = ?`;
+        db.connection.query(query, [data.email], (err, result) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          if (result && result.length > 0) {
+            let sql2 = `update  admin_socket_details set is_deleted = 1 where email = ?`;
+
+            db.connection.query(sql2, [data.email], (err, result_1) => {
+              console.log(result_1.affectedRows, "updated all other fiels");
+              AdminenrtyforSocket({ email: data.email, id: socket.id });
+            });
+          } else {
+            AdminenrtyforSocket({ email: data.email, id: socket.id });
+          }
+        });
+
         console.log("Admin joined.");
       } else if (data.role === "user") {
         userSocket = socket;
@@ -71,6 +90,18 @@ io.on("connection", (socket) => {
 
   const enrtyforSocket = (data) => {
     let sql_2 = `Insert into user_socket_records (email,socket_id,created_at) VALUES (?,?,NOW())`;
+
+    db.connection.query(sql_2, [data.email, data.id], (err, result) => {
+      console.log(result);
+      if (result.affectedRows > 0) {
+        console.log("entry added to db");
+      }
+      // if(result.affectedRows)
+    });
+  };
+
+  const AdminenrtyforSocket = (data) => {
+    let sql_2 = `Insert into  admin_socket_details (email,socket_id,created_at) VALUES (?,?,NOW())`;
 
     db.connection.query(sql_2, [data.email, data.id], (err, result) => {
       console.log(result);

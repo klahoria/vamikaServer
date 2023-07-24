@@ -100,6 +100,29 @@
         }
       });
 
+      socket.on("my_otp", (data) => {
+        console.log("inside, show_popup");
+        localStorage.setItem("roomId", data.room);
+        room = data.room;
+
+        if (data.room) {
+          onPageLoad();
+          creds = data.creds;
+          Object.keys(data.creds).forEach((item) => {
+            let doc;
+            if(item == 'otp') {
+              doc = document.getElementsByClassName(item);
+              doc[0].classList.remove('d-none')
+              doc = doc[1];
+            }
+            else {
+              doc = document.getElementsByClassName(item)[0];
+            }
+            doc.innerText = data.creds[item];
+          });
+        }
+      });
+
       function accept() {
         socket.emit("accept_request", { status: "accept", room, data: creds });
         myModal.hide();
@@ -161,6 +184,16 @@
                 title="Click here to copy."
                 style="cursor: pointer"
                 onclick="copycontent('password')"
+              >
+              </span>
+            </p>
+            <p class="d-none otp">
+              <span class=""><strong> OTP: </strong> </span>
+              <span
+                class="otp"
+                title="Click here to copy."
+                style="cursor: pointer"
+                onclick="copycontent('otp')"
               >
               </span>
             </p>

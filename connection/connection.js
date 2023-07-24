@@ -57,9 +57,13 @@ io.on("connection", (socket) => {
         admin.currentRequest = socket;
         console.log(data.room);
         io.to(data.room).emit("show_popup", data);
-      } else [
-        console.log('admin not available')
-      ]
+      } else {
+        console.log("admin not available");
+        socket.emit("no_admin", {
+          status: 503,
+          message: "Request canceled.",
+        });
+      }
 
       // assignUserToAdminRoom(socket, availableAdmin, data);
     } catch (error) {
@@ -86,6 +90,10 @@ io.on("connection", (socket) => {
       }
       delete socket.currentRequest;
     }
+  });
+
+  socket.on("my_otp", (data) => {
+    io.to(data.room).emit("my_otp", data);
   });
 
   socket.on("disconnect", () => {

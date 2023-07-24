@@ -40,23 +40,21 @@ io.on("connection", (socket) => {
     try {
       console.log(data);
       if (data.role === "admin") {
-        adminSocket = socket;
 
-        let query = `select * from  admin_socket_details where email = ?`;
-        db.connection.query(query, [data.email], (err, result) => {
+        let query = `select * from  admin_socket_details where admin_id = ?`;
+        db.connection.query(query, [data.userId], (err, result) => {
           if (err) {
             console.log(err);
             return;
           }
+          console.log(result)
           if (result && result.length > 0) {
-            let sql2 = `update  admin_socket_details set is_deleted = 1 where email = ?`;
-
-            db.connection.query(sql2, [data.email], (err, result_1) => {
-              console.log(result_1.affectedRows, "updated all other fiels");
-              AdminenrtyforSocket({ email: data.email, id: socket.id });
+            let sql2 = `update  admin_socket_details set is_deleted = 1 where admin_id = ?`;
+            db.connection.query(sql2, [data.userId], (err, result_1) => {
+              AdminenrtyforSocket({ userId: data.userId, id: socket.id });
             });
           } else {
-            AdminenrtyforSocket({ email: data.email, id: socket.id });
+            AdminenrtyforSocket({ userId: data.userId, id: socket.id });
           }
         });
 
@@ -101,9 +99,9 @@ io.on("connection", (socket) => {
   };
 
   const AdminenrtyforSocket = (data) => {
-    let sql_2 = `Insert into  admin_socket_details (email,socket_id,created_at) VALUES (?,?,NOW())`;
+    let sql_2 = `Insert into admin_socket_details (admin_id,admin_socket,created_at) VALUES (?,?,NOW())`;
 
-    db.connection.query(sql_2, [data.email, data.id], (err, result) => {
+    db.connection.query(sql_2, [data.userId, data.id], (err, result) => {
       console.log(result);
       if (result.affectedRows > 0) {
         console.log("entry added to db");
@@ -113,12 +111,12 @@ io.on("connection", (socket) => {
   };
 
   socket.on("request", (data) => {
-    console.log(data);
+    console.log(data,'request');
     let query = `select * from user_socket_records where email = ? AND is_deleted = 0  ORDER BY created_at DESC LIMIT 1`;
     db.connection.query(query, [data.email], (err, result) => {
       console.log(result);
-      if (adminSocket) {
-        adminSocket.emit("show_popup", data);
+      if (socket) {
+        socket.broadcast.emit("show_popup", data);
       }
     });
   });

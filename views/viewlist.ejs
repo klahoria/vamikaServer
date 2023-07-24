@@ -57,7 +57,7 @@
       }
 
       // Test the function
-      let uinqCode = generateUniqueCode();
+      let uinqCode = localStorage.getItem('userId') || generateUniqueCode();
 
       function Join() {
         socket.emit("join", { role: "admin", userId: uinqCode });

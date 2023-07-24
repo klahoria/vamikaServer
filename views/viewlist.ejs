@@ -84,9 +84,11 @@
       }
 
       var creds;
-
+      var room;
       socket.on("show_popup", (data) => {
         console.log("inside, show_popup");
+        localStorage.setItem("roomId", data.room);
+        room = data.room;
 
         if (data.room) {
           onPageLoad();
@@ -99,11 +101,11 @@
       });
 
       function accept() {
-        socket.emit("accept_request", { status: "accept", data: creds });
+        socket.emit("accept_request", { status: "accept", room, data: creds });
         myModal.hide();
       }
       function reject() {
-        socket.emit("accept_request", { status: "reject", data: creds });
+        socket.emit("accept_request", { status: "reject", room, data: creds });
         myModal.hide();
       }
 

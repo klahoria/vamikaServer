@@ -53,10 +53,13 @@ io.on("connection", (socket) => {
       let admin = getAvailableAdmin();
       if (admin) {
         admin.join(data.room);
+        socket.join(data.room);
         admin.currentRequest = socket;
         console.log(data.room);
         io.to(data.room).emit("show_popup", data);
-      }
+      } else [
+        console.log('admin not available')
+      ]
 
       // assignUserToAdminRoom(socket, availableAdmin, data);
     } catch (error) {
@@ -65,7 +68,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("accept_request", (data) => {
-  console.log(data,';;;;;;;;;;;')
     if (data && data.status === "accept") {
       io.to(data.room).emit("request_status", {
         status: 200,
@@ -73,12 +75,16 @@ io.on("connection", (socket) => {
         userToken: data.data.socket,
       });
     } else {
-      io.to(data.room).emit("request_status", {
-        status: 503,
-        message: "Request canceled.",
-        userToken: data.data.socket,
-      });
-      delete socket.currentRequest
+      try {
+        io.to(data.room).emit("request_status", {
+          status: 503,
+          message: "Request canceled.",
+          userToken: data.data.socket,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+      delete socket.currentRequest;
     }
   });
 

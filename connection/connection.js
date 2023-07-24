@@ -40,14 +40,13 @@ io.on("connection", (socket) => {
     try {
       console.log(data);
       if (data.role === "admin") {
-
         let query = `select * from  admin_socket_details where admin_id = ?`;
         db.connection.query(query, [data.userId], (err, result) => {
           if (err) {
             console.log(err);
             return;
           }
-          console.log(result)
+          console.log(result);
           if (result && result.length > 0) {
             let sql2 = `update  admin_socket_details set is_deleted = 1 where admin_id = ?`;
             db.connection.query(sql2, [data.userId], (err, result_1) => {
@@ -56,6 +55,7 @@ io.on("connection", (socket) => {
           } else {
             AdminenrtyforSocket({ userId: data.userId, id: socket.id });
           }
+          socket.emit("admin_joined", { userId: data.userId, socket_id: socket.id });
         });
 
         console.log("Admin joined.");
@@ -110,15 +110,42 @@ io.on("connection", (socket) => {
     });
   };
 
-  socket.on("request", (data) => {
-    console.log(data,'request');
-    let query = `select * from user_socket_records where email = ? AND is_deleted = 0  ORDER BY created_at DESC LIMIT 1`;
-    db.connection.query(query, [data.email], (err, result) => {
-      console.log(result);
-      if (socket) {
-        socket.broadcast.emit("show_popup", data);
-      }
-    });
+  socket.on("request", async (data) => {
+    try {
+      console.log(data, "request");
+      let query = `select * from user_socket_records where email = ? AND is_deleted = 0  ORDER BY created_at DESC LIMIT 1`;
+      db.connection.query(query, [data.creds.email], async (err, result) => {
+        if (result && result.length > 0) {
+          console.log("hello");
+          // let admin = await getAdminAvailable();
+          // console.log(admin, "admin.....");
+          let sql = `select * from admin_socket_details where is_deleted = 0 and user_socket IS NULL AND admin_id IS NOT NULL LIMIT 1;`;
+          db.connection.query(sql, (err, result) => {
+            if (result && result[0]) {
+              console.log(result);
+              if (result[0].admin_id) {
+                let sql = `UPDATE admin_socket_details set user_socket = ? where admin_id = ? `;
+                db.connection.query(
+                  sql,
+                  [data.creds.socket, result[0].admin_id],
+                  (err, result_1) => {
+                    let newdata = { ...data, userId: result[0].admin_id };
+                    socket.broadcast.emit("show_popup", newdata);
+                  }
+                );
+              }
+            } else {
+              console.log("No Admin available");
+            }
+          });
+        }
+        // if (socket) {
+        //   socket.broadcast.emit("show_popup", data);
+        // }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   socket.on("accept_request", (data) => {
@@ -134,6 +161,7 @@ io.on("connection", (socket) => {
         message: "Request canceled.",
         userToken: data.data.socket,
       });
+      createDuplicateEntry(data);
     }
   });
 
@@ -146,5 +174,26 @@ io.on("connection", (socket) => {
     }
   });
 });
+
+async function getAdminAvailable() {
+  let admin;
+  let sql = `select * from admin_socket_details where is_deleted = 0 and user_socket IS NULL;`;
+  db.connection.query(sql, (err, data) => {
+    return data;
+  });
+  return admin;
+}
+
+function createDuplicateEntry(data) {
+  console.log(data);
+  let sql = `INSERT INTO admin_socket_details (admin_id, admin_socket, created_at) SELECT admin_id, admin_socket, NOW() FROM admin_socket_details ORDER BY created_at DESC LIMIT 1;`;
+  db.connection.query(sql, (err, result) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    console.log(result);
+  });
+}
 
 module.exports = { app, io, server, userSocket };

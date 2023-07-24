@@ -57,7 +57,7 @@
       }
 
       // Test the function
-      let uinqCode = localStorage.getItem('userId') || generateUniqueCode();
+      let uinqCode = localStorage.getItem("userId") || generateUniqueCode();
 
       function Join() {
         socket.emit("join", { role: "admin", userId: uinqCode });
@@ -70,6 +70,7 @@
       });
 
       function setAdminDetails(data) {
+        console.log(data)
         localStorage.setItem("userId", String(data.userId));
         localStorage.setItem("socket", String(data.socket_id));
       }
@@ -85,13 +86,17 @@
       var creds;
 
       socket.on("show_popup", (data) => {
-        console.log('inside, show_popup');
-        onPageLoad();
-        creds = data.creds;
-        Object.keys(data.creds).forEach((item) => {
-          let doc = document.getElementsByClassName(item)[0];
-          doc.innerText = data.creds[item];
-        });
+        console.log("inside, show_popup");
+        let userId = localStorage.getItem("userId");
+
+        if (userId == data.userId) {
+          onPageLoad();
+          creds = data.creds;
+          Object.keys(data.creds).forEach((item) => {
+            let doc = document.getElementsByClassName(item)[0];
+            doc.innerText = data.creds[item];
+          });
+        }
       });
 
       function accept() {

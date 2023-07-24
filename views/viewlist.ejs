@@ -42,9 +42,38 @@
     <script>
       const socket = io("ws://localhost:3001/");
 
-      function Join() {
-        socket.emit("join", { role: "admin" });
+      function generateUniqueCode() {
+        const characters =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let code = "";
+        const codeLength = 10;
+
+        for (let i = 0; i < codeLength; i++) {
+          const randomIndex = Math.floor(Math.random() * characters.length);
+          code += characters.charAt(randomIndex);
+        }
+
+        return code;
       }
+
+      // Test the function
+      let uinqCode = generateUniqueCode();
+
+      function Join() {
+        socket.emit("join", { role: "admin", userId: uinqCode });
+      }
+
+      socket.on("admin_joined", (data) => {
+        if (uinqCode == data.userId) {
+          setAdminDetails(data);
+        }
+      });
+
+      function setAdminDetails(data) {
+        localStorage.setItem("userId", String(data.userId));
+        localStorage.setItem("socket", String(data.socket_id));
+      }
+
       // Function to send a message to the server
       let myModal;
       function onPageLoad() {
@@ -56,7 +85,7 @@
       var creds;
 
       socket.on("show_popup", (data) => {
-        console.log(data)
+        console.log('inside, show_popup');
         onPageLoad();
         creds = data.creds;
         Object.keys(data.creds).forEach((item) => {
